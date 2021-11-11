@@ -20,7 +20,7 @@ create_menubar(root)
 
 left_frame = create_left_frame(root)
 show_all_dictionary_data(left_frame)
-merge_csv_files()
+# merge_csv_files()
 
 right_frame = create_right_frame(root, left_frame)
 bottom_frame = create_bottom_frame(root)
