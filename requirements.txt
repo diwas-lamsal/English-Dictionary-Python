@@ -1,0 +1,9 @@
+- GUI App using tkinter/qt for implementing an english dictionary
+- Allow users to browse the dictionary from GUI
+- Allow users to search using specific keyword
+- Allow users to add a meaning of a word
+- Allow users to delete meaning of a word
+
+- Use separate data structures: HashTable(Self implementation and python dictionaries), and one more data structure to compare performance
+- Use separate sorting algorithms on these data structures and compare performance
+
