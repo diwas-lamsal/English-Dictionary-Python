@@ -149,25 +149,6 @@ def delete_word_from_list(meaning_list, word):
 
 # --------------------------------------------------------------------------------------------------
 
-def save_list_to_file(meaning_list, csv_filename="dictionary.csv",
-                      list_filename="meaning_data_as_list.pkl",
-                      dict_filename="meaning_data_as_dictionary.pkl"):
-    try:
-        with open(csv_filename, 'w', newline='') as f:
-            write = csv.writer(f)
-            write.writerows(meaning_list)
-
-        # Whenever the csv is saved, delete the list and dictionary binary files to reload them later
-        if os.path.exists(list_filename):
-            os.remove(list_filename)
-        if os.path.exists(dict_filename):
-            os.remove(dict_filename)
-        return True
-    except Exception as e:
-        return False
-
-
-# --------------------------------------------------------------------------------------------------
 
 def search_list(meaning_list, word):
     """
@@ -193,7 +174,7 @@ def search_list(meaning_list, word):
 # --------------------------------------------------------------------------------------------------
 
 # Modified binary search for specific use to this english dictionary
-# Running time rougly O(logn+m) where n is the number elements in the list and m is the number of matching words
+# Running time roughly O(logn+m) where n is the number elements in the list and m is the number of matching words
 def search_list_binary(meaning_list, word):
     """
     Binary search the meaning list for the given word and return found meanings
@@ -220,18 +201,24 @@ def search_list_binary(meaning_list, word):
             previous = True
             previous_counter = 1
             while previous:
-                if meaning_list[middle - previous_counter][0].casefold() == word.casefold():
-                    filter_list.insert(0, meaning_list[middle - previous_counter])
-                    previous_counter += 1
-                else:
+                try:
+                    if meaning_list[middle - previous_counter][0].casefold() == word.casefold():
+                        filter_list.insert(0, meaning_list[middle - previous_counter])
+                        previous_counter += 1
+                    else:
+                        previous = False
+                except IndexError:
                     previous = False
             next = True
             next_counter = 1
             while next:
-                if meaning_list[middle + next_counter][0].casefold() == word.casefold():
-                    filter_list.append(meaning_list[middle - next_counter])
-                    next_counter += 1
-                else:
+                try:
+                    if meaning_list[middle + next_counter][0].casefold() == word.casefold():
+                        filter_list.append(meaning_list[middle + next_counter])
+                        next_counter += 1
+                    else:
+                        next = False
+                except IndexError:
                     next = False
             ##################################################################
         else:
@@ -247,16 +234,10 @@ def search_list_binary(meaning_list, word):
 # --------------------------------------------------------------------------------------------------
 
 def list_to_dictionary(meaning_list, dict_save_name):
-    """
-    Takes a list and converts it to a dictionary in context of this english dictionary application
-    :param meaning_list: The list to convert to a dictionary data type
-    :param dict_save_name: Name of the binary file to save the dictionary
-    :return: The dictionary object created from the list
-    """
+    """ Converts the given list to dictionary and saves as a pickle binary file """
     d = {}
-
     # https://stackoverflow.com/questions/48705143/efficiency-2d-list-to-dictionary-in-python
-    # Runs in O(n)
+    # Runs in O(n) due to exception handling
     for elem in meaning_list:
         try:
             # using casefold() here to be able to perform case insensitive search later
@@ -274,11 +255,7 @@ def list_to_dictionary(meaning_list, dict_save_name):
 # --------------------------------------------------------------------------------------------------
 
 def load_dictionary_from_file(filename="meaning_data_as_dictionary.pkl"):
-    """
-    Load dictionary data from binary file
-    :param filename: Name of the binary file to load the dictionary from
-    :return: The dictionary extracted from the file
-    """
+    """ Loads dictionary the given binary file """
     a_file = open(filename, "rb")
     output = pickle.load(a_file)
     return output
@@ -287,13 +264,7 @@ def load_dictionary_from_file(filename="meaning_data_as_dictionary.pkl"):
 # --------------------------------------------------------------------------------------------------
 
 def search_dict(meaning_dict, word):
-    """
-    Search the dictionary for given word
-    :param meaning_dict: The dictionary
-    :param word: The word to search for meaning
-    :return: The list containing meanings for the given word, True of False based on whether the word
-             was found
-    """
+    """ Searches the given dictionary meaning_dict for the given word """
     found = False
     filtered_dict_list = []
     if word.casefold() in meaning_dict:
@@ -328,11 +299,10 @@ def add_meaning_to_dict(meaning_dict, word, type, meaning):
     """
     # If the word already exists, then no need to sort the dictionary
     try:
-        meaning_dict[word.casefold()].append([word, type, meaning])
-        print(meaning_dict[word.casefold()])
+        meaning_dict[word.casefold()].append([word, "("+type+")", meaning])
     # If it does not, then insert and sort
     except KeyError:
-        meaning_dict[word.casefold()] = [word, type, meaning]
+        meaning_dict[word.casefold()] = [[word, "("+type+")", meaning]]
         # Then sort the dict again
         # the original dictionary itself is already sorted, hence,
         meaning_dict = dict(sorted(meaning_dict.items()))
@@ -340,3 +310,41 @@ def add_meaning_to_dict(meaning_dict, word, type, meaning):
 
 
 # --------------------------------------------------------------------------------------------------
+
+def delete_word_from_dict(d, word):
+    """ Deletes the given word from the given dictionary """
+    found = False
+    if word.casefold() in d:
+        found = True
+        d.pop(word.casefold(), None)
+    return d, found
+
+
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+
+def save_list_to_file(meaning_obj, madeChanges, dtype, csv_filename="dictionary.csv",
+                      list_filename="meaning_data_as_list.pkl",
+                      dict_filename="meaning_data_as_dictionary.pkl"):
+    if not madeChanges:
+        return False
+
+    # Flatten the list if creating from dictionary
+    # https://stackoverflow.com/questions/952914/how-to-make-a-flat-list-out-of-a-list-of-lists
+    meaning_list = meaning_obj if dtype=="list" else \
+        [item for sublist in list(meaning_obj.values()) for item in sublist]
+
+    try:
+        with open(csv_filename, 'w', newline='') as f:
+            write = csv.writer(f)
+            write.writerows(meaning_list)
+
+        # Whenever the csv is saved, delete the list and dictionary binary files to reload them later
+        if os.path.exists(list_filename):
+            os.remove(list_filename)
+        if os.path.exists(dict_filename):
+            os.remove(dict_filename)
+        return True
+    except Exception as e:
+        return False

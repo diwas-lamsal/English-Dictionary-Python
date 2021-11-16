@@ -132,14 +132,14 @@ def create_right_frame(root, left_frame):
     search_label.place(relx=x_pos, rely= search_y_start)
 
     search_entry = Entry(rp)
-    search_entry.place(relx=x_pos, rely=search_y_start+0.05, width = "150", height="25")
+    search_entry.place(relx=x_pos, rely=search_y_start+0.05, width = "200", height="25")
     search_entry.bind("<KeyRelease>", lambda event : show_search_dictionary_data(left_frame, search_entry.get()))
 
     search_button = Button(rp, text="Search", command= lambda : show_search_dictionary_data(left_frame, search_entry.get()))
-    search_button.place(relx=0.70,rely=search_y_start+0.0465, width = "45", height="25")
+    search_button.place(relx=x_pos,rely=search_y_start+0.12,width="95")
 
     reset_button = Button(rp, text="Reset", command=lambda: reset_button_command(left_frame))
-    reset_button.place(relx=x_pos,rely=search_y_start+0.12,anchor=NW, width="200")
+    reset_button.place(relx=0.50,rely=search_y_start+0.12, width = "95")
 
     # Add new word meaning
     add_meaning_y_start = 0.35
@@ -179,6 +179,10 @@ def create_right_frame(root, left_frame):
 # --------------------------------------------------------------------------------------------------
 
 def add_meaning_button_command(word, type, meaning, left_frame, sort_list = True):
+    if word == "" or word.isspace() or ' ' in word or meaning == "" or meaning.isspace():
+        tkinter.messagebox.showerror(title="Error!", message="Word and meaning cannot be empty")
+        return
+
     start = time.time()
     if gb.DATA_STRUCTURE == "list":
         gb.data_to_display = hp.add_meaning_to_list(gb.data_to_display,
@@ -193,6 +197,7 @@ def add_meaning_button_command(word, type, meaning, left_frame, sort_list = True
     time_taken = end - start
     show_all_dictionary_data(left_frame, gb.data_to_display)
     tkinter.messagebox.showinfo(title="Word Added", message="Time taken to add the word: " + str(time_taken))
+    gb.made_changes = True
 
 # --------------------------------------------------------------------------------------------------
 
@@ -228,33 +233,6 @@ def show_search_dictionary_data(lp, searchterm):
             except Exception as e:
                 t.insert(END, f"{row}")
             t.insert(END, "\n-----------------------------------------------------------------------\n \n")
-    # else:
-    #     filtered_dict, found = hp.search_dict(gb.data_dict, searchterm)
-    #     if not found:
-    #         t.insert(END, f"Word Not Found")
-    #     else:
-    #         for row, cols in filtered_dict.items():
-    #             for col in cols:
-    #                 try:
-    #                     t.insert(END, f"{col[0]}: {col[1]}\n     {col[2]}")
-    #                 except Exception as e:
-    #                     pass
-    #                 t.insert(END, "\n-----------------------------------------------------------------------\n \n")
-
-    # found = False
-    # for row in gb.data_list:
-    #     if row[0].casefold() == searchterm.casefold():
-    #         found = True
-    #     else:
-    #         if found == True:
-    #             break
-    #         else:
-    #             continue
-    #     t.insert(END, f"{row[0]}: {row[1]}\n     {row[2]}")
-    #     t.insert(END, "\n----------------------------------------------------------------------------\n \n")
-    # if found == False:
-    #     t.insert(END, f"Word Not Found")
-
     t.config(state=DISABLED)
     # attach Text widget to root window at top
     t.pack(side=TOP, fill=X)
@@ -278,6 +256,12 @@ def create_bottom_frame(root, left_frame):
     save_button = Button(bp, text="Save", command=lambda: save_button_command())
     save_button.place(relx=x_pos, rely=y_pos,width="100")
 
+    x_pos = 0.40
+    text = "Using List Data Structure" if gb.DATA_STRUCTURE == "list" else "Using Dictionary(HashTable) Data Structure"
+    ds_label = Label(bp, text=text, font=Font(size=10, weight="bold"),
+                         bg=gb.BP_BACKGROUND, fg="White")
+    ds_label.place(relx=x_pos, rely=y_pos)
+
     x_pos = 0.05
     delete_label = Label(bp, text="Delete Word:", font=Font(size=10, weight="bold"),
                          bg=gb.BP_BACKGROUND, fg="White")
@@ -294,16 +278,21 @@ def create_bottom_frame(root, left_frame):
 # --------------------------------------------------------------------------------------------------
 
 def delete_word(left_frame, word):
-    gb.data_list, found_word = hp.delete_word_from_list(gb.data_list,word)
-    show_all_dictionary_data(left_frame,gb.data_list)
+    if gb.DATA_STRUCTURE == "list":
+        gb.data_to_display, found_word = hp.delete_word_from_list(gb.data_to_display,word)
+    else:
+        gb.data_to_display, found_word = hp.delete_word_from_dict(gb.data_to_display,word)
+
+    show_all_dictionary_data(left_frame, gb.data_to_display)
     if found_word:
         tkinter.messagebox.showinfo(title="Word Found", message="Deleted the word " + word)
+        gb.made_changes = True
     else:
         tkinter.messagebox.showerror(title="Word Not Found", message="No such word was found")
 
 # --------------------------------------------------------------------------------------------------
 
 def save_button_command(filename="dictionary.csv"):
-    if(hp.save_list_to_file(gb.data_list)):
+    if(hp.save_list_to_file(gb.data_to_display, gb.made_changes, gb.DATA_STRUCTURE)):
         tkinter.messagebox.showinfo(title="File Saved Successfully", message="Saved the dictionary to " + filename)
 
