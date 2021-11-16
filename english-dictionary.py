@@ -19,7 +19,7 @@ setup_display(root)
 create_menubar(root)
 left_frame = create_left_frame(root)
 
-show_all_dictionary_data(left_frame, gb.csvdata_list if gb.DATA_STRUCTURE=="list" else gb.csvdata_dict)
+show_all_dictionary_data(left_frame, gb.data_list if gb.DATA_STRUCTURE == "list" else gb.data_dict)
 
 # Uncomment the line below to reset the dictionary
 # merge_csv_files() # Commenting because done merging
