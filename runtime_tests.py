@@ -15,7 +15,7 @@ import string
 # ------------------------------------- TESTING SEARCH -------------------------------------------------- #
 # ------------------------------------------------------------------------------------------------------- #
 
-def plot_search_runtime(lo=100, hi=200, search_exist=True):
+def plot_search_runtime(lo=100, hi=200, search_exist=True, num=0):
     sl_arr = []
     sl_bin_arr = []
     sd_arr = []
@@ -45,6 +45,7 @@ def plot_search_runtime(lo=100, hi=200, search_exist=True):
         sl_bin_arr.append(list_search_binary)
         sd_arr.append(dict_search)
 
+    plt.figure(num)
     plt.plot(sl_arr, label="Linear search on List")
     plt.plot(sl_bin_arr, label="Binary search on List")
     plt.plot(sd_arr, label="Search on Dictionary")
@@ -53,22 +54,14 @@ def plot_search_runtime(lo=100, hi=200, search_exist=True):
         plt.title("Search of existing words")
     else:
         plt.title("Search of nonexistent words")
-    plt.show()
-
-
-# ------------------------------------------------------------------------------------------------------- #
-
-# plot_search_runtime(lo=100, hi=400, search_exist=True)
-
-
-# ------------------------------------------------------------------------------------------------------- #
+    return plt
 
 
 # ------------------------------------------------------------------------------------------------------- #
 # ------------------------------------- TESTING INSERT -------------------------------------------------- #
 # ------------------------------------------------------------------------------------------------------- #
 
-def plot_insert_runtime(lo=100, hi=len(gb.data_list) - 1, word_exist=True):
+def plot_insert_runtime(lo=100, hi=len(gb.data_list) - 1, word_exist=True, num=0):
     li_sort = []
     li_no_sort = []
     di = []
@@ -104,6 +97,7 @@ def plot_insert_runtime(lo=100, hi=len(gb.data_list) - 1, word_exist=True):
         li_no_sort.append(list_insert_no_sort)
         di.append(dict_insert)
 
+    plt.figure(num)
     plt.plot(li_sort, label="Insert on List and Sort")
     plt.plot(li_no_sort, label="Insert on List No Sorting (Using Binary Search)")
     plt.plot(di, label="Insert on Dictionary")
@@ -112,8 +106,87 @@ def plot_insert_runtime(lo=100, hi=len(gb.data_list) - 1, word_exist=True):
     else:
         plt.title("Insertion of meaning of new words")
     plt.legend()
-    plt.show()
+    return plt
+
+
+# ------------------------------------------------------------------------------------------------------- #
+# ------------------------------------- TESTING DELETE -------------------------------------------------- #
+# ------------------------------------------------------------------------------------------------------- #
+
+def plot_delete_runtime(lo=100, hi=len(gb.data_list) - 1, word_exist=True, num=0):
+    ldarr = []
+    ddarr = []
+    ldbinarr = []
+
+    global my_list, word, my_dict, meaning, word_type
+
+    for n in range(lo, hi):
+        my_list = []
+        my_list[:] = gb.data_list[:n][:]
+
+        word_list = []
+        for row in my_list:
+            word_list.append(row[0])
+
+        my_dict = dict((k, gb.data_dict[k]) for k in word_list if k in gb.data_dict)
+
+        # Generate random
+        if word_exist:
+            word = random.choice(word_list)
+        else:
+            word = ''.join(random.choice(string.ascii_lowercase) for i in range(5))
+        word_type = "n."
+        meaning = ''.join(random.choice(string.ascii_lowercase) for i in range(20))
+
+        list_delete = timeit('hp.delete_word_from_list(my_list,word)',
+                                    number=1, globals=globals())
+        list_delete_binary = timeit('hp.delete_word_from_list_binary(my_list,word)',
+                             number=1, globals=globals())
+        dict_delete = timeit('hp.delete_word_from_dict(my_dict,word)',
+                                    number=1, globals=globals())
+
+        ldarr.append(list_delete)
+        ldbinarr.append(list_delete_binary)
+        ddarr.append(dict_delete)
+
+    plt.figure(num)
+    plt.plot(ldarr, label="Delete on List")
+    plt.plot(ldbinarr, label="Delete on List Using Binary Search")
+    plt.plot(ddarr, label="Delete on Dictionary", c="g")
+    if word_exist:
+        plt.title("Deletion of meaning of existing words")
+    else:
+        plt.title("Deletion of meaning of nonexistent words")
+    plt.legend()
+    return plt
 
 # ------------------------------------------------------------------------------------------------------- #
 
-plot_insert_runtime(lo=200, hi=500, word_exist=False)
+lo = 200
+hi = 500
+
+num_start = -1
+def add_one():
+    global num_start
+    num_start += 1
+    return num_start
+
+# ------------------------------------------------------------------------------------------------------- #
+
+plot_search_runtime(lo=lo, hi=hi, search_exist=True, num=add_one())
+plot_search_runtime(lo=lo, hi=hi, search_exist=False, num=add_one())
+plt.show()
+
+# ------------------------------------------------------------------------------------------------------- #
+
+# plot_insert_runtime(lo=lo, hi=hi, word_exist=True, num=add_one())
+# plot_insert_runtime(lo=lo, hi=hi, word_exist=False, num=add_one())
+# plt.show()
+
+# ------------------------------------------------------------------------------------------------------- #
+
+# plot_delete_runtime(lo=lo, hi=hi, word_exist=True, num=add_one())
+# plot_delete_runtime(lo=lo, hi=hi, word_exist=False, num=add_one())
+# plt.show()
+
+# ------------------------------------------------------------------------------------------------------- #

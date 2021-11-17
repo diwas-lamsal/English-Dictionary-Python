@@ -66,6 +66,8 @@ def csv_to_list(csv_filename, list_save_name):
     """
     csv.field_size_limit(256 << 20)
     meaning_list = []
+    if not os.path.exists(csv_filename):
+        merge_csv_files()
     with open(csv_filename, newline='') as csvfile:
         meaning_list = meaning_list + list(csv.reader(csvfile))
         # https://www.kite.com/python/answers/how-to-save-a-dictionary-to-a-file-in-python
@@ -146,6 +148,47 @@ def delete_word_from_list(meaning_list, word):
     else:
         return [meaning_list, False]
 
+# --------------------------------------------------------------------------------------------------
+
+def delete_word_from_list_binary(meaning_list, word):
+    """
+    Performs binary search on the list and deletes the element if exists
+    :return: The list after the element is deleted
+    """
+    found = False
+    first = 0
+    last = len(meaning_list) - 1
+    while first <= last and not found:
+        middle = (first + last) // 2
+        if meaning_list[middle][0].casefold() == word.casefold():
+            found = True
+            previous = True
+            previous_counter = 1
+            while previous:
+                try:
+                    if meaning_list[middle - previous_counter][0].casefold() == word.casefold():
+                        previous_counter += 1
+                    else:
+                        previous = False
+                except IndexError:
+                    previous = False
+            next = True
+            next_counter = 1
+            while next:
+                try:
+                    if meaning_list[middle + next_counter][0].casefold() == word.casefold():
+                        next_counter += 1
+                    else:
+                        next = False
+                except IndexError:
+                    next = False
+            del meaning_list[(middle-previous_counter+1):(middle+next_counter)]
+        else:
+            if word.casefold() < meaning_list[middle][0].casefold():
+                last = middle - 1
+            else:
+                first = middle + 1
+    return [meaning_list, found]
 
 # --------------------------------------------------------------------------------------------------
 

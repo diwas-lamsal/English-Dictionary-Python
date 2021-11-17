@@ -17,12 +17,13 @@ root = Tk()
 
 setup_display(root)
 create_menubar(root)
-left_frame = create_left_frame(root)
-
-show_all_dictionary_data(left_frame, gb.data_list if gb.DATA_STRUCTURE == "list" else gb.data_dict)
 
 # Uncomment the line below to reset the dictionary
 # merge_csv_files() # Commenting because done merging
+
+left_frame = create_left_frame(root)
+
+show_all_dictionary_data(left_frame, gb.data_list if gb.DATA_STRUCTURE == "list" else gb.data_dict)
 
 right_frame = create_right_frame(root, left_frame)
 bottom_frame = create_bottom_frame(root, left_frame)

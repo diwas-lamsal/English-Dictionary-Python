@@ -279,7 +279,7 @@ def create_bottom_frame(root, left_frame):
 
 def delete_word(left_frame, word):
     if gb.DATA_STRUCTURE == "list":
-        gb.data_to_display, found_word = hp.delete_word_from_list(gb.data_to_display,word)
+        gb.data_to_display, found_word = hp.delete_word_from_list_binary(gb.data_to_display,word)
     else:
         gb.data_to_display, found_word = hp.delete_word_from_dict(gb.data_to_display,word)
 
