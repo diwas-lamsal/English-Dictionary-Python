@@ -25,6 +25,7 @@ data_dict = hp.load_dictionary_from_file(dict_filename) if exists(dict_filename)
 # Point the data_to_display variable to one of the above loaded variables according to configuration
 data_to_display = data_list if DATA_STRUCTURE == "list" else data_dict
 
+
 made_changes = False
 
 # Panel background colors
