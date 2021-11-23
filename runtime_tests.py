@@ -200,9 +200,9 @@ def add_one():
 
 # ------------------------------------------------------------------------------------------------------- #
 
-plot_insert_runtime(lo=lo, hi=hi, word_exist=True, num=add_one())
-plot_insert_runtime(lo=lo, hi=hi, word_exist=False, num=add_one())
-plt.show()
+# plot_insert_runtime(lo=lo, hi=hi, word_exist=True, num=add_one())
+# plot_insert_runtime(lo=lo, hi=hi, word_exist=False, num=add_one())
+# plt.show()
 
 # ------------------------------------------------------------------------------------------------------- #
 

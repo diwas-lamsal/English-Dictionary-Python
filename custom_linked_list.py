@@ -23,7 +23,6 @@ class DoublyLinkedList:
             self.start_node = new_node
             return
         n = self.start_node
-        p = None
         while n is not None:
             # If the word is equal to n (already exists)
             if n.item[0].casefold() == word.casefold():
@@ -37,6 +36,7 @@ class DoublyLinkedList:
                     self.start_node = new_node
                 else:
                     n.prev.next = new_node
+                    new_node.prev = n.prev
                 n.prev = new_node
                 new_node.next = n
                 return
