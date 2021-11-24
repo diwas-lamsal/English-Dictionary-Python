@@ -172,7 +172,7 @@ def plot_delete_runtime(lo=100, hi=len(gb.data_list) - 1, word_exist=True, num=0
     plt.plot(ldarr, label="Delete on List")
     plt.plot(ldbinarr, label="Delete on List Using Binary Search")
     plt.plot(ddarr, label="Delete on Dictionary", c="g")
-    plt.plot(sdll_arr, label="Delete on DoublyLinkedList", c ="lightgreen",linestyle='dashed')
+    # plt.plot(sdll_arr, label="Delete on DoublyLinkedList", c ="lightgreen",linestyle='dashed')
 
     if word_exist:
         plt.title("Deletion of meaning of existing words")
